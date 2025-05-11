@@ -9,7 +9,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE OverloadedStrings #-}
-module Moving.Tasks.Things where
+module Things3 where
 
 import GHC.Generics
 import Data.Kind
