@@ -15,10 +15,10 @@ import GHC.Generics
 import Data.Kind
 import Data.Aeson
 import qualified Data.List as L
-import Data.Text (Text, pack, unpack)
+import Data.Text (Text)
 import qualified Data.Text as T
-import System.Process
 import Network.URI.Encode
+-- import System.Process
 
 data ThingsCmd (auth_token :: Type) (ret :: Type) where
   Add ::
@@ -27,6 +27,7 @@ data ThingsCmd (auth_token :: Type) (ret :: Type) where
     , add_list     :: Maybe Text
     , add_notes    :: Maybe Text
     , add_tags     :: Maybe [Text]
+    , add_checklist_items :: Maybe [Text]
     -- , deadline :: Maybe When
     } -> ThingsCmd a ()
   Update ::
@@ -62,6 +63,7 @@ thingsCmdToUrl cmd token =
           [ "when=" <> urlEncodeWhen when' | Just when' <- [add_when] ] ++
           [ "tags=" <> encodeTags tags'  | Just tags' <- [add_tags] ] ++
           [ "list="  <> encodeText list'  | Just list' <- [add_list] ] ++
+          [ "checklist-items="  <> encodeText (T.unlines list')  | Just list' <- [add_checklist_items] ] ++
           [ "notes=" <> encodeText notes' | Just notes' <- [add_notes] ]
         )
     Update{..} -> "update?" <>
