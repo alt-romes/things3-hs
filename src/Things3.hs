@@ -22,19 +22,19 @@ import Network.URI.Encode
 
 data ThingsCmd (auth_token :: Type) (ret :: Type) where
   Add ::
-    { add_title    :: Text
-    , add_when     :: Maybe When
-    , add_list     :: Maybe Text
-    , add_notes    :: Maybe Text
-    , add_tags     :: Maybe [Text]
-    , add_checklist_items :: Maybe [Text]
+    { title    :: Text
+    , when     :: Maybe When
+    , list     :: Maybe Text
+    , notes    :: Maybe Text
+    , tags     :: Maybe [Text]
+    , checklist_items :: Maybe [Text]
     -- , deadline :: Maybe When
     } -> ThingsCmd a ()
   Update ::
     { update_id :: Text
-    , update_new_title :: Maybe Text
-    , update_when :: Maybe When
-    , update_list :: Maybe Text
+    , new_title :: Maybe Text
+    , new_when :: Maybe When
+    , new_list :: Maybe Text
     } -> ThingsCmd AuthToken ()
 
 data When
@@ -59,26 +59,26 @@ thingsCmdToUrl cmd token =
     Add{..} -> "add?" <>
       T.concat
         (L.intersperse "&" $
-          [ "title=" <> encodeText add_title ] ++
-          [ "when=" <> urlEncodeWhen when' | Just when' <- [add_when] ] ++
-          [ "tags=" <> encodeTags tags'  | Just tags' <- [add_tags] ] ++
-          [ "list="  <> encodeText list'  | Just list' <- [add_list] ] ++
-          [ "checklist-items="  <> encodeText (T.unlines list')  | Just list' <- [add_checklist_items] ] ++
-          [ "notes=" <> encodeText notes' | Just notes' <- [add_notes] ]
+          [ "title=" <> encodeText title ] ++
+          [ "when=" <> urlEncodeWhen when' | Just when' <- [when] ] ++
+          [ "tags=" <> encodeTags tags'  | Just tags' <- [tags] ] ++
+          [ "list="  <> encodeText list'  | Just list' <- [list] ] ++
+          [ "checklist-items="  <> encodeText (T.unlines list')  | Just list' <- [checklist_items] ] ++
+          [ "notes=" <> encodeText notes' | Just notes' <- [notes] ]
         )
     Update{..} -> "update?" <>
       T.concat
         (L.intersperse "&" $
           [ "auth-token=" <> token ] ++
           [ "id=" <> update_id ] ++
-          [ "title=" <> encodeText title' | Just title' <- [update_new_title] ] ++
+          [ "title=" <> encodeText title' | Just title' <- [new_title] ] ++
           [ "when="  <> when'' -- <>
             -- ROMES:TODO: this will overwrite all tags, but I don't care too much about tags
             -- "&tags=" <> encodeTags tags
-            | Just when'  <- [update_when]
+            | Just when'  <- [new_when]
             , let when'' = urlEncodeWhen when'
           ] ++
-          [ "list="  <> encodeText list'  | Just list'  <- [update_list] ]
+          [ "list="  <> encodeText list'  | Just list'  <- [new_list] ]
         )
   where
     encodeTags = T.concat . L.intersperse "," . map encodeText
